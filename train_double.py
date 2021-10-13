@@ -21,14 +21,14 @@ class Q(nn.Module):
 class Trainer:
 
     def __init__(self):
-        self.exp_path = ExperimentPath('exp/simple_linear_shiftrwd')
+        self.exp_path = ExperimentPath('exp/simple_linear')
         self.q = Q()
         self.opt = torch.optim.Adam(lr=1e-3, params=self.q.parameters())
         self.batch_size = 5
-
         def f(x):
             return norm.pdf(x, 10, 2)
-        self.env = Hill(f, r_shift=-0.1)
+        self.env = Hill(f)
+
         self.param_trace_left_weight = []
         self.param_trace_left_bias = []
 
@@ -44,12 +44,10 @@ class Trainer:
         plt.scatter(self.param_trace_left_weight[:-1], self.param_trace_left_bias[:-1], color='black', label='history')
         plt.scatter(self.param_trace_left_weight[-1:], self.param_trace_left_bias[-1:], color='red', label='current')
 
-        # x_step = np.linspace(-1, 2, 100)
-        # y_step = np.linspace(-1, 2, 100)
-        x_step = np.linspace(-0.7, 0.5, 100)
-        y_step = np.linspace(-1.5, -0.3, 100)
+        x_step = np.linspace(-1, 2, 100)
+        y_step = np.linspace(-1, 2, 100)
         contour_x = np.stack([x_step for _ in range(y_step.shape[0])]).T
-        contour_y = np.stack([y_step for _ in range(x_step.shape[0])])
+        contour_y = np.stack([x_step for _ in range(x_step.shape[0])])
 
         # for x in range(x_step.shape[0]):
         #     for y in range(y_step.shape[0]):
@@ -72,6 +70,7 @@ class Trainer:
                 contour_z[i, j] = loss
         # pprint.pprint(np.round(contour_z, 5).tolist())
         plt.contour(contour_x, contour_y, contour_z)
+        # input()
 
     def train(self, i):
         # compute values

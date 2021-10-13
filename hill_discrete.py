@@ -21,7 +21,7 @@ def converge(x, f, rtol=1e-5, atol=1e-8, iters=1e4, close=np.allclose):
 class Hill:
 
     def __init__(self, f, s_min=0, s_max=10,
-                 step_size=1, slip_std=0.5, density=5, rstd=0.0, gamma=0.95):
+                 step_size=1, slip_std=0.5, density=5, rstd=0.0, r_shift=0, gamma=0.95):
 
         self.density = density
         self.step_size = step_size
@@ -56,6 +56,7 @@ class Hill:
                 self.er[si][ai] = np.sum(
                     np.array([self.h[si_] - self.h[si] for si_ in self.s]) * ps_)
 
+        self.er += r_shift
         self.q_ground_truth = self.plan()
         self.n = np.zeros(self.er.shape)
 
