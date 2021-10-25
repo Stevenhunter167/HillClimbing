@@ -44,7 +44,7 @@ class Hill:
             for ai in range(self.na):
                 direction = -1 * (1 - ai) + ai
                 si_ideal = max(min(si + direction * self.density, self.s.shape[0] - 1), 0)
-                assert (si_ideal in self.s, si_ideal), self.s.shape[0]
+                assert (si_ideal in self.s), self.s.shape[0]
 
                 ps_ = norm.pdf(
                     x=self.x,
@@ -95,12 +95,12 @@ class Hill:
         plt.plot(self.x, self.f(self.x), label='height(s)', color='brown')
         # plt.plot(self.x, self.p[-1][1], color='red', label="p(s'|s[-1],a=1)")
         # plt.plot(self.x, self.p[-1][0], color='orange', label="p(s'|s[-1],a=0)")
-        self.plot_q()
+        # self.plot_q()
 
-    def plot_q(self, q=None, color=None):
+    def plot_q(self, q=None, color=None, label=None):
         if q is not None:
-            plt.plot(self.x, q[:, 1], label='Q_θ(s,1)', color=color)
-            plt.plot(self.x, q[:, 0], label='Q_θ(s,0)', color=color, alpha=0.2)
+            plt.plot(self.x, q[:, 1], label=f'{label}: Q_θ(s,1)', color=color)
+            plt.plot(self.x, q[:, 0], label=f'{label}: Q_θ(s,0)', color=color, alpha=0.2)
         else:
             q = self.q_ground_truth
             # v = q.max(1)

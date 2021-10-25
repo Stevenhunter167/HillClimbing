@@ -19,7 +19,7 @@ class Q(nn.Module):
 class Trainer:
 
     def __init__(self):
-        self.exp_path = ExperimentPath('exp/simple_linear_shiftrwd')
+        self.exp_path = ExperimentPath('exp/simple_linear_equivalent_lr')
         self.ensemble_size = 5
         self.batch_size = 5
         self.q_ensemble = nn.ModuleList(Q() for _ in range(self.ensemble_size))
@@ -27,7 +27,7 @@ class Trainer:
 
         def f(x):
             return norm.pdf(x, 10, 2)
-        self.env = Hill(f, r_shift=-0.1)
+        self.env = Hill(f)  # , r_shift=-0.1
         self.param_trace_left_weight = []
         self.param_trace_left_bias = []
 
@@ -53,26 +53,26 @@ class Trainer:
 
         # x_step = np.linspace(-1, 2, 100)
         # y_step = np.linspace(-1, 2, 100)
-        x_step = np.linspace(-0.7, 0.5, 100)
-        y_step = np.linspace(-1.5, -0.3, 100)
-        contour_x = np.stack([x_step for _ in range(y_step.shape[0])]).T
-        contour_y = np.stack([y_step for _ in range(x_step.shape[0])])
-        contour_z = np.zeros(contour_x.shape)
-        state_dict = copy.deepcopy(self.q_ensemble[0].net.state_dict())
-        v, _ = self.mean_q_target(torch.tensor(self.env.x / self.env.s_max, dtype=torch.float32).view(-1, 1)).max(1)
-        for i, x in enumerate(x_step):
-            for j, y in enumerate(y_step):
-                q_temp = nn.Linear(1,2)
-                state_dict['weight'][0][0] = x
-                state_dict['weight'][1][0] = y
-                q_temp.load_state_dict(state_dict)
-                qsa = q_temp(torch.tensor(self.env.x / self.env.s_max, dtype=torch.float32).view(-1, 1)).detach()
-                loss = torch.mean((torch.tensor(self.env.er[:,0]) + self.env.gamma * v - qsa[:,0]) ** 2).item()
-                # print(loss, contour_z.shape)
-                # code.interact(local=locals())
-                contour_z[i, j] = loss
-        # pprint.pprint(np.round(contour_z, 5).tolist())
-        plt.contour(contour_x, contour_y, contour_z)
+        # x_step = np.linspace(-0.7, 0.5, 100)
+        # y_step = np.linspace(-1.5, -0.3, 100)
+        # contour_x = np.stack([x_step for _ in range(y_step.shape[0])]).T
+        # contour_y = np.stack([y_step for _ in range(x_step.shape[0])])
+        # contour_z = np.zeros(contour_x.shape)
+        # state_dict = copy.deepcopy(self.q_ensemble[0].net.state_dict())
+        # v, _ = self.mean_q_target(torch.tensor(self.env.x / self.env.s_max, dtype=torch.float32).view(-1, 1)).max(1)
+        # for i, x in enumerate(x_step):
+        #     for j, y in enumerate(y_step):
+        #         q_temp = nn.Linear(1,2)
+        #         state_dict['weight'][0][0] = x
+        #         state_dict['weight'][1][0] = y
+        #         q_temp.load_state_dict(state_dict)
+        #         qsa = q_temp(torch.tensor(self.env.x / self.env.s_max, dtype=torch.float32).view(-1, 1)).detach()
+        #         loss = torch.mean((torch.tensor(self.env.er[:,0]) + self.env.gamma * v - qsa[:,0]) ** 2).item()
+        #         # print(loss, contour_z.shape)
+        #         # code.interact(local=locals())
+        #         contour_z[i, j] = loss
+        # # pprint.pprint(np.round(contour_z, 5).tolist())
+        # plt.contour(contour_x, contour_y, contour_z)
         # input()
 
     def train(self, i):

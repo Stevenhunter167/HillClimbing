@@ -24,7 +24,10 @@ class ExperimentPath:
         return self.__getattr__(item)
 
     def __getattr__(self, attr):
-        os.makedirs(self._path, exist_ok=True)
+        try:
+            os.makedirs(self._path, exist_ok=True)
+        except:
+            pass
         return ExperimentPath(os.path.join(self._path, attr))
 
     def isfile(self, file_type):
